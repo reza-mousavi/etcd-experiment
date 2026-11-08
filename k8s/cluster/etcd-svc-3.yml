@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: etcd3
+    cluster: etcd
+  name: etcd3-headless
+  namespace: ds
+spec:
+  ports:
+  - name: 2379-2379
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  - name: 2380-2380
+    port: 2380
+    protocol: TCP
+    targetPort: 2380
+  selector:
+    run: etcd3
+  type: ClusterIP
+  clusterIP: None
+status:
+  loadBalancer: {}
