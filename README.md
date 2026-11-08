@@ -1,6 +1,12 @@
-# Busybox etcd Client
+# ETCD Experiment
 
-A lightweight, containerized `etcd` client and utility image built on Alpine and Busybox. It packages the official `etcd`, `etcdctl`, and `etcdutl` binaries into a minimal footprint container for Kubernetes cluster administration, benchmarking, and troubleshooting.
+Kubernetes relies heavily on etcd as a synchronization point for all of its operations. 
+
+It is crucial to understand how Kubernetes utilizes etcd for its workloads. 
+
+The aim behind this repo is to experiment with etcd to ensure a clear understanding of what it is and how it works.
+
+---
 
 ## Repository Structure
 
@@ -9,47 +15,66 @@ etcd-experiment/
 ├── Dockerfile
 └── k8s/
     ├── ns.yml         # Creating namespace
-    ├── cluster/       # an etcd cluster
-    └── standalone/    # standalone etcd node
+    ├── cluster/       # An etcd cluster
+    └── standalone/    # Standalone etcd node
+```
+
+Kubernetes resources are placed under the `k8s` folder within the repo to create and run etcd and a namespace called **ds**. 
+
+There are two sets of resources created to run etcd either standalone or as a cluster.
+
+---
 
 ## Step 1: Running ETCD
 
-Create the dedicated ds namespace (ns.yml) for your etcd deployment and client pods:
+Create the dedicated `ds` namespace (`ns.yml`) for your etcd deployment and client pods:
 
 ```bash
 kubectl apply -f k8s/ns.yml
 ```
 
-In the K8S repo there are two folders having yaml files to run ETCD, either standalone or in a cluster.
+In the `k8s` folder, there are two subfolders containing YAML files to run etcd either standalone or in a cluster.
 
 ### Running Standalone ETCD
 
-After creating the namespace, you can run the following command to create a pod and a headless service for ETCD.
+After creating the namespace, you can run the following commands to create a pod and a service for standalone etcd:
 
 ```bash
 kubectl apply -f k8s/standalone/
 kubectl get po,svc -n ds -o wide --show-labels 
+kubectl logs -n ds -l run=etcd --tail=50
 ```
-
 
 ### Running Clustered ETCD
 
-In case you would rather experimenting with a clustered ETCD, after creating the namespace, you can run the following command to create three pods with their own headless services.
+If you would rather experiment with a clustered etcd setup, after creating the namespace, run the following commands to deploy the cluster architecture:
 
 ```bash
 kubectl apply -f k8s/cluster/ -n ds
 kubectl get po,svc -n ds -o wide --show-labels
+kubectl logs -n ds etcd1 --tail=50
+kubectl logs -n ds etcd2 --tail=50
+kubectl logs -n ds etcd3 --tail=50
+kubectl logs -n ds -l cluster=etcd --tail=50
 ```
 
+---
 
 ## Step 2: Connecting to ETCD
 
-In order to connect to ETCD you can either connect to it using a program written on any programming languages or trying with some utilities provided by ETCD itself. I use **etcdctl** which is very powerful. There a re multiple way for getting access to the binary, among those using the binaries provided by etcd.io. Running the utility on K8S platform have some challenges though since kubernetes understands only containers.
+To connect to etcd, you can either use a program written in any programming language or try the utilities provided by etcd itself. 
 
-To overcome this limitaiton a Docker images is created at the root if this project to build a client utility based on **busybox** image to create a busybox container equipped with etcd utilities.
+**etcdctl**, which is very powerful, is used in the context of this repo. 
 
+There are multiple ways to get access to the utility, including using binaries provided by etcd.io. 
 
-#### Features
+Running the utility on a Kubernetes platform, however, comes with challenges since Kubernetes only understands containers.
+
+To overcome this limitation, a Docker image is created at the root of this project using a **busybox** base image, creating a container equipped with etcd utilities. 
+
+It packages the official `etcd`, `etcdctl`, and `etcdutl` binaries into a minimal footprint container for Kubernetes cluster administration, benchmarking, and troubleshooting.
+
+### Features
 
 * **Multi-stage build:** Uses Alpine for downloading and unpacking release binaries, resulting in a minimal final Busybox image.
 * **Configurable ARGs:** Easily customize versions, base images, and download URLs at build time.
@@ -57,30 +82,29 @@ To overcome this limitaiton a Docker images is created at the root if this proje
 
 ### Build and Push the Utility Image
 
-The instruction below provided to create the utility for my **dockerhub** account, however, could be replaced with any other account.
+The instructions below are provided to create the utility for a **Docker Hub** account, but they can be adapted for any other container registry.
 
 ### Build Arguments
 
-Docker file provided on the rpeo support build arguments so that it is fairly easy to upgrade the utility without much change on the Dockerfileitself.
+The Dockerfile provided in the repo supports build arguments so that it is fairly easy to upgrade the utility without modifying the Dockerfile itself.
 
 | Build Argument | Default Value | Description |
 | :--- | :--- | :--- |
 | `ALPINE_VER` | `3.19` | Alpine version used for the temporary downloader stage |
 | `BUSYBOX_VER` | `1.36` | Busybox version used for the final lightweight image |
 | `ETCD_VER` | `v3.7.3` | Target etcd version to download |
-| `DOWNLOAD_URL` | `https://storage.googleapis.com/etcd/...` | Direct tarball download URL |
+| `DOWNLOAD_URL` | `https://storage.googleapis.com/...` | Direct tarball download URL |
 | `ETCDCTL_API` | `3` | Default etcdctl API version environment variable |
 
 ### Building the Image
 
-Build the image locally and tag it for your user or registry. The following command builds the image for my DockerHub repo!
+Build the image locally and tag it for your user or registry:
 
 ```bash
-docker build -t rezamda/bysybox-etcd:latest .
-
+docker build -t rezamda/busybox-etcd:1.36-v3.7.3 .
 ```
 
-Passing build arguments(Downloading etcd from Google APIs):
+Or pass explicit build arguments to download etcd directly from Google APIs:
 
 ```bash
 docker build \
@@ -89,24 +113,26 @@ docker build \
   --build-arg ETCD_VER=v3.7.3 \
   --build-arg ETCDCTL_API=3 \
   --build-arg DOWNLOAD_URL=https://storage.googleapis.com/etcd/v3.7.3/etcd-v3.7.3-linux-amd64.tar.gz \
-  -t rezamda/busybox-etcd:latest .
+  -t rezamda/busybox-etcd:1.36-v3.7.3 .
 ```
 
-Don't forget to push the image Dockerhub:
+Push the image to Docker Hub:
 
 ```bash
 docker push rezamda/busybox-etcd:1.36-v3.7.3
 ```
 
+---
+
 ## Step 3: Connecting to ETCD
 
-First, spin up the utility container
+First, spin up the utility container directly inside Kubernetes:
 
 ```bash
-docker run --rm -it rezamda/busybox-etcd:1.36-v3.7.3
+kubectl run etcdctl --rm -it --image=rezamda/busybox-etcd:1.36-v3.7.3 --namespace=ds --restart=Never -- sh
 ```
 
-Connecting to the standalone node, no clustering:
+### Connecting to the Standalone Node:
 
 ```bash
 echo "=== 1. Obtain service address using nslookup ==="
@@ -115,29 +141,25 @@ nslookup etcd-headless.ds.svc.cluster.local
 echo "=== 2. Ensure port 2379 is open using nc ==="
 nc -zv etcd-headless.ds.svc.cluster.local 2379
 
-echo "=== 3. Ensure etcd is running & check container logs ==="
-kubectl get pods -n ds -l run=etcd
-kubectl logs -n ds -l run=etcd --tail=50
-
-echo "=== 4. Check endpoint health & member list ==="
+echo "=== 3. Check endpoint health & member list ==="
 ENDPOINTS="http://etcd-headless.ds.svc.cluster.local:2379"
 etcdctl --endpoints=$ENDPOINTS endpoint health
 etcdctl --endpoints=$ENDPOINTS member list
 
-echo "=== 5. Put a key and read it ==="
+echo "=== 4. Put a key and read it ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/status "active"
 etcdctl --endpoints=$ENDPOINTS get /cluster/status
 
-echo "=== 6. Update the key and read it again ==="
+echo "=== 5. Update the key and read it again ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/status "synced"
 etcdctl --endpoints=$ENDPOINTS get /cluster/status
 
-echo "=== 7. Create another key and get list of all keys with their values ==="
+echo "=== 6. Create another key and get list of all keys with their values ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/region "us-east"
 etcdctl --endpoints=$ENDPOINTS get /cluster/ --prefix --write-out=fields
 ```
 
-In case you have created the cluster:
+### Connecting to the Cluster:
 
 ```bash
 echo "=== 1. Obtain service address using nslookup ==="
@@ -150,29 +172,27 @@ nc -zv etcd1-headless.ds.svc.cluster.local 2379
 nc -zv etcd2-headless.ds.svc.cluster.local 2379
 nc -zv etcd3-headless.ds.svc.cluster.local 2379
 
-echo "=== 3. Ensure cluster is running & check container logs ==="
-kubectl get pods -n ds -l cluster=etcd
-kubectl logs -n ds -l app=etcd1 --tail=50
-
-echo "=== 4. Check endpoint health & member list across all 3 nodes ==="
+echo "=== 3. Check endpoint health & member list across all 3 nodes ==="
 ENDPOINTS="http://etcd1-headless.ds.svc.cluster.local:2379,http://etcd2-headless.ds.svc.cluster.local:2379,http://etcd3-headless.ds.svc.cluster.local:2379"
 etcdctl --endpoints=$ENDPOINTS endpoint health
 etcdctl --endpoints=$ENDPOINTS member list
 
-echo "=== 5. Put a key and read it ==="
+echo "=== 4. Put a key and read it ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/status "active"
 etcdctl --endpoints=$ENDPOINTS get /cluster/status
 
-echo "=== 6. Update the key and read it again ==="
+echo "=== 5. Update the key and read it again ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/status "synced"
 etcdctl --endpoints=$ENDPOINTS get /cluster/status
 
-echo "=== 7. Create another key and get list of all keys with their values ==="
+echo "=== 6. Create another key and get list of all keys with their values ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/region "us-east"
-etcdctl --endpoints=$ENDPOINTS get /cluster/ --prefix
+etcdctl --endpoints=$ENDPOINTS get /cluster/--prefix
 ```
 
-## More info
+---
+
+## More Info
 
 | Technology | Version / Tag | Purpose in Project |
 | :--- | :--- | :--- |
