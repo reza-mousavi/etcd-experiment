@@ -1,0 +1,11 @@
+# Docker build artifacts and temporary files
+*.tar.gz
+.tmp/
+build/
+
+# IDE and OS specific files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
