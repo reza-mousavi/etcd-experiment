@@ -1,0 +1,56 @@
+### Get all customers
+GET http://localhost:8081/customer
+accept: application/json
+Content-Type: application/json
+
+### Get all products
+GET http://localhost:8083/product
+accept: application/json
+Content-Type: application/json
+
+### Post a Customer
+POST http://localhost:8081/customer
+accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Reza",
+  "family" : "mousavi",
+  "email" : "3213"
+}
+
+### Get One customer
+GET http://localhost:8081/customer/c7be41f8-19c1-4d27-b7bf-c6c8ac41ee20
+accept: application/json
+Content-Type: application/json
+
+### Post a Product
+POST http://localhost:8083/product
+accept: application/json
+Content-Type: application/json
+
+{
+  "version": 0,
+  "name": "A",
+  "code": "B",
+  "ean": "C",
+  "producer": "D",
+  "country-of-origin": "DK"
+}
+
+### Get One product
+GET http://localhost:8083/product/a8ba255c-6dc7-489a-ad4d-16176f8c05ab
+accept: application/json
+Content-Type: application/json
+
+### Persist Order
+POST http://localhost:8082/order
+accept: application/json
+Content-Type: application/json
+
+{
+  "product-id": "fdb9955c-e035-4b69-9ae9-00814acd32e4",
+  "customer-id": "2218e159-9d3f-4bfd-9500-9afbe79b345c",
+  "quantity": 123
+}
+

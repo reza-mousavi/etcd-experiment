@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+    <springProperty scope="context" name="envName" source="spring.application.env"/>
+    <!--Do not change the nane of variable. Otherwise, it does not work-->
+    <property name="CONSOLE_LOG_PATTERN" value="env=${envName:-local},app=${appName},host=${HOSTNAME},level=%level,traceID=%X{traceId:-NONE},spanID=%X{spanId:-NONE} %-30(%d{HH:mm:ss.SSS} [%thread]) %logger{32} - %msg%n "/>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+    </root>
+</configuration>

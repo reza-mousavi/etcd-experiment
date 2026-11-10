@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: product-service
+  aop:
+    proxy-target-class: true
+  jackson:
+    property-naming-strategy: KEBAB_CASE
+management :
+  endpoints :
+    web :
+      exposure :
+        include : '*'
+springdoc:
+  enable-kotlin: false
+  api-docs:
+    enabled: true
+

@@ -1,0 +1,7 @@
+spring:
+  application:
+    env: local
+  datasource:
+    url: jdbc:h2:file:./product;MODE=PostgreSQL
+server:
+  port: 7072

@@ -1,0 +1,14 @@
+spring:
+  application:
+    env: local
+  datasource:
+    url: jdbc:h2:file:./order;MODE=PostgreSQL
+server:
+  port: 7070
+
+app:
+  integration:
+    customer-service:
+      endpoint: http://localhost:7071
+    product-service:
+      endpoint: http://localhost:7072

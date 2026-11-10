@@ -1,0 +1,14 @@
+/target
+/logs
+*.logs
+*.log
+
+*.db
+*.iml
+.idea
+*.rdb
+*.tmp
+
+target/
+runtime/
+

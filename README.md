@@ -68,6 +68,7 @@ This repository contains step-by-step instructions and references for generating
 
 
 [TLS README](./tls/README.md)
+
 ---
 
 ## Step 2: Connecting to ETCD
@@ -84,7 +85,7 @@ To overcome this limitation, a Docker image is created from **busybox** base ima
 
 It packages the official `etcd`, `etcdctl`, and `etcdutl` binaries into a minimal footprint container for Kubernetes cluster administration, benchmarking, and troubleshooting.
 
-[Busybox README](./busybox-etcd/README.md)
+[Busybox ETCD README](./busybox-etcd/README.md)
 ---
 
 
@@ -154,6 +155,10 @@ etcdctl --endpoints=$ENDPOINTS put /cluster/region "us-east"
 etcdctl --endpoints=$ENDPOINTS get /cluster/--prefix
 ```
 
+## Connecting using Java Application
+
+
+[Java Microservices README](./java-microservices/README.md)
 ---
 
 ## More Info

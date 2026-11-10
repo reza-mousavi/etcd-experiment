@@ -119,5 +119,4 @@ openssl x509 -in server.crt -text -noout
 openssl x509 -enddate -noout -in server.crt
 ```
 
----
 
