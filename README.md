@@ -58,6 +58,16 @@ kubectl logs -n ds etcd3 --tail=50
 kubectl logs -n ds -l cluster=etcd --tail=50
 ```
 
+### TLS Configuration
+
+There are different ways to make cluster secure. However, I have create a guide to create necessary certfiicates required to make ETCD nodes secure. 
+
+# TLS Certificate Generation & Management Guide for etcd
+
+This repository contains step-by-step instructions and references for generating, verifying, and managing Transport Layer Security (TLS) certificates for an **etcd** cluster and its clients.
+
+
+[TLS README](./tls/README.md)
 ---
 
 ## Step 2: Connecting to ETCD
@@ -70,59 +80,13 @@ There are multiple ways to get access to the utility, including using binaries p
 
 Running the utility on a Kubernetes platform, however, comes with challenges since Kubernetes only understands containers.
 
-To overcome this limitation, a Docker image is created at the root of this project using a **busybox** base image, creating a container equipped with etcd utilities. 
+To overcome this limitation, a Docker image is created from **busybox** base image, busybox-etcd folder, creating a container equipped with etcd utilities. 
 
 It packages the official `etcd`, `etcdctl`, and `etcdutl` binaries into a minimal footprint container for Kubernetes cluster administration, benchmarking, and troubleshooting.
 
-### Features
-
-* **Multi-stage build:** Uses Alpine for downloading and unpacking release binaries, resulting in a minimal final Busybox image.
-* **Configurable ARGs:** Easily customize versions, base images, and download URLs at build time.
-* **Pre-configured Environment:** Automatically sets `ETCDCTL_API=3` for v3 client operations.
-
-### Build and Push the Utility Image
-
-The instructions below are provided to create the utility for a **Docker Hub** account, but they can be adapted for any other container registry.
-
-### Build Arguments
-
-The Dockerfile provided in the repo supports build arguments so that it is fairly easy to upgrade the utility without modifying the Dockerfile itself.
-
-| Build Argument | Default Value | Description |
-| :--- | :--- | :--- |
-| `ALPINE_VER` | `3.19` | Alpine version used for the temporary downloader stage |
-| `BUSYBOX_VER` | `1.36` | Busybox version used for the final lightweight image |
-| `ETCD_VER` | `v3.7.3` | Target etcd version to download |
-| `DOWNLOAD_URL` | `https://storage.googleapis.com/...` | Direct tarball download URL |
-| `ETCDCTL_API` | `3` | Default etcdctl API version environment variable |
-
-### Building the Image
-
-Build the image locally and tag it for your user or registry:
-
-```bash
-docker build -t rezamda/busybox-etcd:1.36-v3.7.3 .
-```
-
-Or pass explicit build arguments to download etcd directly from Google APIs:
-
-```bash
-docker build \
-  --build-arg ALPINE_VER=3.19 \
-  --build-arg BUSYBOX_VER=1.36 \
-  --build-arg ETCD_VER=v3.7.3 \
-  --build-arg ETCDCTL_API=3 \
-  --build-arg DOWNLOAD_URL=https://storage.googleapis.com/etcd/v3.7.3/etcd-v3.7.3-linux-amd64.tar.gz \
-  -t rezamda/busybox-etcd:1.36-v3.7.3 .
-```
-
-Push the image to Docker Hub:
-
-```bash
-docker push rezamda/busybox-etcd:1.36-v3.7.3
-```
-
+[Busybox README](./busybox-etcd/README.md)
 ---
+
 
 ## Step 3: Connecting to ETCD
 
@@ -196,8 +160,6 @@ etcdctl --endpoints=$ENDPOINTS get /cluster/--prefix
 
 | Technology | Version / Tag | Purpose in Project |
 | :--- | :--- | :--- |
-| **Alpine Linux** | `3.19` | Lightweight builder stage used for downloading and extracting `etcd` release binaries securely. |
-| **Busybox** | `1.36` | Minimal runtime base image providing essential UNIX utilities for the final lightweight container footprint. |
 | **etcd / etcdctl / etcdutl** | `v3.7.3` | Distributed key-value store binaries packaged into the client image for administrative, health, and cluster operations. |
 | **Docker** | Latest | Containerization platform used to perform multi-stage builds, tag images, and manage local registries. |
 | **Kubernetes (`kubectl`)** | Latest | Orchestration platform used to deploy namespaces, standalone pods, and 3-node stateful cluster architectures. |
