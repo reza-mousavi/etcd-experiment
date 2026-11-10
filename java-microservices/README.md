@@ -1,6 +1,6 @@
-# Contract HelloWorld 
+# Java Microservices
 
-The repository is created to demonstrate **contract** design using OpenAPI. The approach is generate contract, Java Code, from the Spec, OpenAPI Spec.
+The repository is created to demonstrate **microservice** design using OpenAPI. The approach is generate contract, Java Code, from the Spec, OpenAPI Spec for smaller services
 
 ## Building Application
 
