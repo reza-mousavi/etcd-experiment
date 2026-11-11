@@ -180,7 +180,7 @@
                     <dockerHost>tcp://localhost:2375</dockerHost>
                     <images>
                         <image>
-                            <name>${project.groupId}/${project.artifactId}:${project.version}</name>
+                            <name>${project.artifactId}:${project.version}</name>
                             <build>
                                 <dockerFile>${project.basedir}/Dockerfile</dockerFile>
                                 <args>
