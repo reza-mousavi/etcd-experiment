@@ -1,23 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: customer-service
+  name: product-service
   namespace: ds
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: customer-service
+      app: product-service
   template:
     metadata:
       labels:
-        app: customer-service
+        app: product-service
     spec:
       imagePullSecrets:
         - name: rezamda
       containers:
-        - name: customer-service
-          image: rezamda/customer-service:1.0-SNAPSHOT
+        - name: product-service
+          args:
+            - "--spring.config.location=file:/config/"
+            - "--logging.config=file:/config/logback-spring.xml"
+          image: rezamda/product-service:1.0-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8443
@@ -28,7 +31,7 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/mydb
             - name: SPRING_DATASOURCE_USERNAME
-              value: sc_customer
+              value: sc_product
             - name: SPRING_DATASOURCE_PASSWORD
               value: "123456"
           readinessProbe:
@@ -46,15 +49,16 @@ spec:
             initialDelaySeconds: 45
             periodSeconds: 15
             timeoutSeconds: 5
+
           volumeMounts:
-            - name: logback-config
-              mountPath: /logback-spring.xml
-              subPath: logback-spring.xml
+            - name: product-service-config
+              mountPath: /config
             - name: app-logs
               mountPath: /app
       volumes:
-        - name: logback-config
+        - name: product-service-config
           configMap:
-            name: customer-service
+            name: product-service
         - name: app-logs
           emptyDir: {}
+

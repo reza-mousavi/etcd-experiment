@@ -4,6 +4,30 @@ metadata:
   name: customer-service
   namespace: ds
 data:
+  application.yml: |
+    server:
+      port: 8080
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres:5432/mydb
+        username: sc_customer
+        password: "123456"
+
+  application-tls.yml: |
+    server:
+      port: 8443
+      ssl:
+        bundle: tls
+
+    spring:
+      ssl:
+        bundle:
+          pem:
+            tls:
+              keystore:
+                certificate: file:/tls/tls.crt
+                private-key: file:/tls/tls.key
+
   logback-spring.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>

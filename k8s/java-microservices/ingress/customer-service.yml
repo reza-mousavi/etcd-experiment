@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: customer-service
+  namespace: ds
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # Enforce client certificate validation at the Ingress level
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+    nginx.ingress.kubernetes.io/auth-tls-secret: "ds/ca" 
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: "1"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+      - customer-service.local.test
+    secretName: tls
+  rules:
+  - host: customer-service.local.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: customer-service
+            port:
+              number: 8080
