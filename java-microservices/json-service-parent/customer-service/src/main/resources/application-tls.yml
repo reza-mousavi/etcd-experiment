@@ -1,0 +1,15 @@
+server:
+  port: 8443
+  ssl:
+    bundle: tls
+
+spring:
+  ssl:
+    bundle:
+      pem:
+        tls:
+          keystore:
+            certificate: classpath:/tls/server.crt
+            private-key: classpath:/tls/server.key
+          truststore:
+            certificate: classpath:/tls/ca.crt

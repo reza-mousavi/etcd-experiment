@@ -82,6 +82,39 @@ $ curl -X POST -H 'Content-Type: application/json' -d '{"customer-id": "43a814af
 $ curl -X GET  -H 'Content-Type: application/json' http://localhost:7061/order-service/order/{id}
 ```
 
+## Running with TLS / mTLS Security
+
+You can run your services securely using TLS encryption or Mutual TLS (mTLS) by activating the respective Spring profiles and providing your certificate configs.
+
+### 1. Running with standard TLS Profile
+To run a service with HTTPS enabled (trusting the server certificate):
+
+```bash
+$ java -jar -Dspring.profiles.active=tls service-parent/customer-service/target/*.jar
+```
+
+**Verification using `curl`:**
+```bash
+$ curl -iv --cacert ca.crt https://localhost:8443/customer-service/customer -- since cert is signed
+$ curl -iv --cacert server.crt https://localhost:8443/customer-service/customer
+```
+
+### Running with mTLS Profile
+To run a service with Mutual TLS enabled (forcing clients to present a verified certificate):
+
+```bash
+$ java -jar -Dspring.profiles.active=mtls service-parent/customer-service/target/*.jar
+```
+
+**Verification using `curl` (passing client identity and CA trust):**
+```bash
+$ curl -iv \
+  --cert client.crt \
+  --key client.key \
+  --cacert ca.crt \
+  https://localhost:8443/customer-service/customer
+```
+
 ## Useful Links
 
 | Tool            | Link                                                                                                          |

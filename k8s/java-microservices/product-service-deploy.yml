@@ -52,7 +52,12 @@ spec:
               subPath: logback-spring.xml
             - name: app-logs
               mountPath: /app
+            - name: tls-config
+              mountPath: /tls
       volumes:
+        - name: tls-cm
+          configMap:
+            name: tls-config
         - name: logback-config
           configMap:
             name: product-service

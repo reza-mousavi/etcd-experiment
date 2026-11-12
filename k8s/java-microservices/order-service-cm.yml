@@ -4,6 +4,37 @@ metadata:
   name: order-service
   namespace: ds
 data:
+  application.yml: |
+    server:
+      port: 8080
+    spring:
+      datasource:
+        url: jdbc:postgresql://postgres:5432/mydb
+        username: sc_order
+        password: "123456"
+      flyway:
+        ignore-supported-database: false # Wait, use true instead
+    app:
+      integration:
+        customerservice:
+          endpoint: http://customer-service:8080/
+        productservice:
+          endpoint: http://product-service:8080/
+  application-tls.yml: |
+    server:
+      port: 8443
+      ssl:
+        bundle: tls
+
+    spring:
+      ssl:
+        bundle:
+          pem:
+            tls:
+              keystore:
+                certificate: file:/tls/server.crt
+                private-key: file:/tls/server.key
+
   logback-spring.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <configuration>
@@ -12,7 +43,7 @@ data:
 
         <springProperty scope="context" name="appName" source="spring.application.name"/>
         <springProperty scope="context" name="envName" source="spring.application.env"/>
-        <!--Do not change the nane of variable. Otherwise, it does not work-->
+        <!--Do not change the name of variable. Otherwise, it does not work-->
         <property name="CONSOLE_LOG_PATTERN" value="env=${envName:-local},app=${appName},host=${HOSTNAME},level=%level,traceID=%X{traceId:-NONE},spanID=%X{spanId:-NONE} %-30(%d{HH:mm:ss.SSS} [%thread]) %logger{32} - %msg%n "/>
 
         <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">

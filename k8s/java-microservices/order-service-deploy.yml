@@ -35,11 +35,19 @@ spec:
               value: http://customer-service:8080/
             - name: APP_INTEGRATION_PRODUCTSERVICE_ENDPOINT
               value: http://product-service:8080/
+            - name: SERVER_PORT
+              value: "8443"
+            - name: SERVER_SSL_BUNDLE
+              value: tls
+            - name: SPRING_SSL_BUNDLE_PEM_TLS_KEYSTORE_PRIVATE_KEY
+              value: file:/tls/server.key
+            - name: SPRING_SSL_BUNDLE_PEM_TLS_KEYSTORE_CERTIFICATE
+              value: file:/tls/server.crt
 
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: 8443
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -47,7 +55,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 8080
+              port: 8443
             initialDelaySeconds: 45
             periodSeconds: 15
             timeoutSeconds: 5
@@ -57,7 +65,12 @@ spec:
               subPath: logback-spring.xml
             - name: app-logs
               mountPath: /app
+            - name: tls-config
+              mountPath: /tls
       volumes:
+        - name: tls-config
+          configMap:
+            name: tls
         - name: logback-config
           configMap:
             name: order-service
