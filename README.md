@@ -154,11 +154,6 @@ echo "=== 6. Create another key and get list of all keys with their values ==="
 etcdctl --endpoints=$ENDPOINTS put /cluster/region "us-east"
 etcdctl --endpoints=$ENDPOINTS get /cluster/--prefix
 ```
-
-## Connecting using Java Application
-
-
-[Java Microservices README](./java-microservices/README.md)
 ---
 
 ## More Info
